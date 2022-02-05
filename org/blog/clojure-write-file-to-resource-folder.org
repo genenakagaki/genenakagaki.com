@@ -1,0 +1,73 @@
+#Date: 2021/2/3
+
+* How to write a new file to the resource folder in Clojure
+When I was working on one of my clojure projects, I wanted to write a new file to the resource folder. I got an error with the =spit= function and had to spend time figuring this out. I ended up not writing to the resource folder, but instead pass a file path as an argument. But for those who run in to the same problem, including me in the future, here it is.
+
+** TL;DR
+Folder structure
+#+begin_example
+.
+├── README.md
+├── deps.edn
+├── src
+├── └── core.clj
+└── resources
+    └── a-directory
+#+end_example
+
+To write to =resources/a-directory/a-file.txt=, do this
+#+begin_src clojure
+  (require '[clojure.java.io :as io])
+
+  (let [folder-url (io/resource "a-directory")
+        folder-path (.getPath folder-url)
+        file-path (str folder-path "/a-file.txt")]
+    (spit file-path "hello world!"))
+#+end_src
+
+** The problem I had
+I was trying to write to a new file in the resource folder. My folder directory was kind of like this.
+#+begin_example
+.
+├── README.md
+├── deps.edn
+├── src
+├── └── core.clj
+└── resources
+    └── a-directory
+#+end_example
+
+I tried this code
+#+begin_src clojure
+  (spit (io/resource "a-directory/a-file.txt") "hello world!")
+#+end_src
+
+But the REPL gave me this error
+#+begin_src clojure
+; Execution error (IllegalArgumentException) at genenakagaki.page-view-converter/eval8279 (REPL:28).
+; Cannot open <nil> as a Writer.
+#+end_src
+
+This code worked with an already existing file, but was failing with a new file. The cause was =(io/resource "a-directory/a-file.txt")= returning a nil.
+
+** The solution
+I ended up just creating a file path string.
+
+1. Use the =io/resource= function on a directory that I know exists
+2. Get the path string from the =java.net.URL= class, which is what the =io/resource= returns
+3. Append the filename at the end of the path string
+
+Which ended up with the following code.
+#+begin_src clojure
+  (require '[clojure.java.io :as io])
+
+  (let [folder-url (io/resource "a-directory")
+        folder-path (.getPath folder-url)
+        file-path (str folder-path "/a-file.txt")]
+    (spit file-path "hello world!"))
+#+end_src
+
+Now that I explained this in words, I have no idea why I got stuck in the first place. I had a straightforward error and a straightforward solution. I feel a little stupid, but I wrote this blog post so its going on my blog.
+
+
+ 
