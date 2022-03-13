@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#app .icon {
+    display: block;
+}
+
+#app .icon-sm {
+    font-size: 18px;
+}
+
+#app .icon-md {
+    font-size: 24px;
+}
+
+#app .icon-lg {
+    font-size: 32px;
+}
